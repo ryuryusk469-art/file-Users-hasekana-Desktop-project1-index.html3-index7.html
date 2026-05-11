@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>かわいい！ひらがなカード</title>
+    <style>
+        body { font-family: 'Hiragino Kaku Gothic Pro', 'Meiryo', sans-serif; background-color: #fff9fb; display: flex; flex-wrap: wrap; justify-content: center; padding: 20px; }
+        h1 { width: 100%; text-align: center; color: #ff85a2; font-size: 24px; margin-bottom: 20px; }
+        .container { display: flex; flex-wrap: wrap; justify-content: center; max-width: 1000px; }
+        .card { 
+            background: white; border-radius: 20px; box-shadow: 0 6px 12px rgba(255, 133, 162, 0.1);
+            width: 120px; margin: 10px; padding: 15px; text-align: center;
+            cursor: pointer; transition: 0.3s; border: 3px solid #ffe3e9;
+        }
+        .card:hover { transform: translateY(-8px) rotate(2deg); box-shadow: 0 10px 20px rgba(255, 133, 162, 0.2); }
+        .emoji { font-size: 40px; margin-bottom: 5px; display: block; }
+        .hiragana { font-size: 48px; font-weight: bold; color: #444; margin: 5px 0; }
+        .romaji { font-size: 14px; color: #ff85a2; font-weight: bold; letter-spacing: 1px; }
+        .word { font-size: 13px; color: #888; margin-top: 5px; }
+        /* 行ごとの色分け */
+        .row-a { border-color: #ffadad; } .row-ka { border-color: #ffd6a5; }
+        .row-sa { border-color: #fdffb6; } .row-ta { border-color: #caffbf; }
+        .row-na { border-color: #9bf6ff; } .row-ha { border-color: #a0c4ff; }
+        .row-ma { border-color: #bdb2ff; } .row-ya { border-color: #ffc6ff; }
+        .row-ra { border-color: #fffffc; } .row-wa { border-color: #ff85a2; }
+    </style>
+</head>
+<body>
+
+<h1>✨ ひらがな フラッシュカード ✨</h1>
+<div id="app" class="container"></div>
+
+<script>
+    // アップロードされたデータを元にした完全リスト
+    const hiraganaData = [
+        { row: "row-a", char: "あ", rom: "A", emo: "🇺🇸", word: "あおい" },
+        { row: "row-a", char: "い", rom: "I", emo: "🐶", word: "いぬ" },
+        { row: "row-a", char: "う", rom: "U", emo: "🌊", word: "うみ" },
+        { row: "row-a", char: "え", rom: "E", emo: "✏️", word: "えんぴつ" },
+        { row: "row-a", char: "お", rom: "O", emo: "🍵", word: "おちゃ" },
+        { row: "row-ka", char: "か", rom: "KA", emo: "☂️", word: "かさ" },
+        { row: "row-ka", char: "き", rom: "KI", emo: "🌳", word: "き" },
+        { row: "row-ka", char: "く", rom: "KU", emo: "🚗", word: "くるま" },
+        { row: "row-ka", char: "け", rom: "KE", emo: "🍰", word: "ケーキ" },
+        { row: "row-ka", char: "こ", rom: "KO", emo: "👧", word: "こども" },
+        { row: "row-sa", char: "さ", rom: "SA", emo: "🌸", word: "さくら" },
+        { row: "row-sa", char: "し", rom: "SHI", emo: "⬜", word: "しろ" },
+        { row: "row-sa", char: "す", rom: "SU", emo: "🍣", word: "すし" },
+        { row: "row-sa", char: "せ", rom: "SE", emo: "🌎", word: "せかい" },
+        { row: "row-sa", char: "そ", rom: "SO", emo: "☁️", word: "そら" },
+        { row: "row-ta", char: "た", rom: "TA", emo: "🥚", word: "たまご" },
+        { row: "row-ta", char: "ち", rom: "CHI", emo: "🦋", word: "ちょうちょ" },
+        { row: "row-ta", char: "つ", rom: "TSU", emo: "🌙", word: "つき" },
+        { row: "row-ta", char: "て", rom: "TE", emo: "✋", word: "て" },
+        { row: "row-ta", char: "と", rom: "TO", emo: "🐯", word: "とら" },
+        { row: "row-na", char: "な", rom: "NA", emo: "🍆", word: "なす" },
+        { row: "row-na", char: "に", rom: "NI", emo: "🌈", word: "にじ" },
+        { row: "row-na", char: "ぬ", rom: "NU", emo: "🧸", word: "ぬいぐるみ" },
+        { row: "row-na", char: "ね", rom: "NE", emo: "🐱", word: "ねこ" },
+        { row: "row-na", char: "の", rom: "NO", emo: "🍹", word: "のみもの" },
+        { row: "row-ha", char: "は", rom: "HA", emo: "🌸", word: "はな" },
+        { row: "row-ha", char: "ひ", rom: "HI", emo: "🔥", word: "ひ" },
+        { row: "row-ha", char: "ふ", rom: "FU", emo: "🚢", word: "ふね" },
+        { row: "row-ha", char: "へ", rom: "HE", emo: "🐍", word: "へび" },
+        { row: "row-ha", char: "ほ", rom: "HO", emo: "⭐", word: "ほし" },
+        { row: "row-ma", char: "ま", rom: "MA", emo: "🪟", word: "まど" },
+        { row: "row-ma", char: "み", rom: "MI", emo: "💧", word: "みず" },
+        { row: "row-ma", char: "む", rom: "MU", emo: "🐞", word: "むし" },
+        { row: "row-ma", char: "め", rom: "ME", emo: "👁️", word: "め" },
+        { row: "row-ma", char: "も", rom: "MO", emo: "🍑", word: "もも" },
+        { row: "row-ya", char: "や", rom: "YA", emo: "⛰️", word: "やま" },
+        { row: "row-ya", char: "ゆ", rom: "YU", emo: "❄️", word: "ゆき" },
+        { row: "row-ya", char: "よ", rom: "YO", emo: "🌃", word: "よる" },
+
+
+
+        
+        { row: "row-ra", char: "ら", rom: "RA", emo: "🍜", word: "らーめん" },
+        { row: "row-ra", char: "り", rom: "RI", emo: "🍎", word: "りんご" },
+        { row: "row-ra", char: "る", rom: "RU", emo: "🪢", word: "るーぷ" },
+        { row: "row-ra", char: "れ", rom: "RE", emo: "🍋", word: "れもん" },
+        { row: "row-ra", char: "ろ", rom: "RO", emo: "🤖", word: "ロボット" },
+        { row: "row-wa", char: "わ", rom: "WA", emo: "🐊", word: "わに" },
+        { row: "row-wa", char: "を", rom: "WO", emo: "🔗", word: "(particle)" },
+        { row: "row-wa", char: "ん", rom: "N", emo: "📖", word: "ほん" }
+    ];
+
+    const app = document.getElementById('app');
+
+    // 音声再生機能
+    function speak(text) {
+        const uttr = new SpeechSynthesisUtterance(text);
+        uttr.lang = 'ja-JP';
+        uttr.rate = 0.9; // 優しいスピード
+        window.speechSynthesis.speak(uttr);
+    }
+
+    // カード生成
+    hiraganaData.forEach(item => {
+        const card = document.createElement('div');
+        card.className = `card ${item.row}`;
+        card.innerHTML = `
+            <span class="emoji">${item.emo}</span>
+            <div class="hiragana">${item.char}</div>
+            <div class="romaji">${item.rom}</div>
+            <div class="word">${item.word}</div>
+        `;
+        
+        card.onclick = () => {
+            speak(item.char);
+            setTimeout(() => speak(item.word), 600);
+        };
+        
+        app.appendChild(card);
+    });
+</script>
+
+</body>
+</html>
